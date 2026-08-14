@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HarshaVisual — Book a Shoot. Get Your Reel in 10 Minutes.</title>
+<meta name="description" content="HarshaVisual shoots political content reels, event coverage, and personal reels — edited and delivered to your phone in 10 minutes.">
+<meta name="theme-color" content="#0F1116">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --ink:#0F1116;
+    --ink-2:#171A21;
+    --ink-3:#1E222B;
+    --paper:#F3F1EA;
+    --amber:#FFB100;
+    --amber-dim:#8a6300;
+    --rec:#FF3B30;
+    --teal:#00C2A8;
+    --line:rgba(243,241,234,0.14);
+    --muted:rgba(243,241,234,0.62);
+    --display:'Oswald', sans-serif;
+    --shout:'Archivo Black', sans-serif;
+    --body:'Inter', sans-serif;
+    --mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--body);
+    line-height:1.5;
+    overflow-x:hidden;
+    cursor:default;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+  a{color:inherit;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+  [data-reveal]{opacity:0; transform:translateY(28px);}
+
+  /* ---------- Custom cursor (desktop only) ---------- */
+  .cursor-dot{
+    position:fixed; top:0; left:0; width:10px; height:10px; border-radius:50%;
+    background:var(--amber); pointer-events:none; z-index:999; mix-blend-mode:difference;
+    transform:translate(-50%,-50%); display:none;
+  }
+  .cursor-ring{
+    position:fixed; top:0; left:0; width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--amber); pointer-events:none; z-index:998;
+    transform:translate(-50%,-50%); display:none; transition:width .2s, height .2s, opacity .2s;
+  }
+  @media (hover:hover) and (pointer:fine){
+    .cursor-dot, .cursor-ring{display:block;}
+  }
+
+  /* ---------- Progress bar ---------- */
+  .progress-bar{position:fixed; top:0; left:0; height:3px; background:var(--amber); width:0%; z-index:1000; box-shadow:0 0 10px rgba(255,177,0,0.6);}
+
+  /* ---------- Sprocket divider ---------- */
+  .sprocket{
+    height:28px;
+    background-image: radial-gradient(circle, var(--ink-2) 3.5px, transparent 3.6px);
+    background-size: 28px 28px;
+    background-position: 14px center;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    opacity:0.9;
+  }
+
+  /* ---------- Marquee ---------- */
+  .marquee{
+    background:var(--amber); color:var(--ink); overflow:hidden; white-space:nowrap;
+    padding:10px 0; font-family:var(--display); font-size:13px; letter-spacing:0.08em; text-transform:uppercase; font-weight:600;
+  }
+  .marquee-track{display:inline-flex; gap:40px; animation:scroll-left 22s linear infinite;}
+  .marquee span{display:inline-flex; align-items:center; gap:40px;}
+  @keyframes scroll-left{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+
+  /* ---------- Nav ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(15,17,22,0.88);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+    transition:padding .25s ease;
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; max-width:1120px; margin:0 auto;
+  }
+  .logo{font-family:var(--shout); font-size:20px; letter-spacing:0.5px;}
+  .logo span{color:var(--amber);}
+  .nav-links{display:flex; gap:28px; font-family:var(--display); font-size:14px; letter-spacing:0.08em; text-transform:uppercase;}
+  .nav-links a{text-decoration:none; color:var(--muted); transition:color .2s; position:relative;}
+  .nav-links a::after{content:""; position:absolute; left:0; bottom:-4px; width:0; height:1px; background:var(--amber); transition:width .25s ease;}
+  .nav-links a:hover{color:var(--paper);}
+  .nav-links a:hover::after{width:100%;}
+  .nav-cta{
+    font-family:var(--display); font-size:13px; letter-spacing:0.06em; text-transform:uppercase;
+    background:var(--amber); color:var(--ink); padding:10px 18px; border-radius:2px;
+    text-decoration:none; font-weight:600; display:inline-block;
+  }
+  .magnetic{transition:transform .2s ease;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    padding:90px 24px 40px;
+    background:
+      radial-gradient(ellipse 900px 500px at 80% -10%, rgba(255,177,0,0.16), transparent 60%),
+      radial-gradient(ellipse 700px 400px at 0% 100%, rgba(0,194,168,0.10), transparent 60%),
+      var(--ink);
+    overflow:hidden;
+  }
+  .hero::before{
+    content:""; position:absolute; inset:0; background:var(--paper); opacity:0; pointer-events:none;
+    animation:flash 6s ease-in-out infinite;
+  }
+  @keyframes flash{0%,96%,100%{opacity:0;} 97%{opacity:0.06;} 98%{opacity:0;}}
+  .rec-badge{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:13px; letter-spacing:0.03em;
+    background:var(--ink-2); border:1px solid var(--line);
+    padding:8px 14px; border-radius:3px; color:var(--paper);
+    margin-bottom:28px;
+  }
+  .rec-dot{width:9px; height:9px; border-radius:50%; background:var(--rec); animation:pulse 1.1s infinite ease-in-out; box-shadow:0 0 8px var(--rec);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+  #countdown{color:var(--amber); font-weight:700;}
+  .hero-grid{display:grid; grid-template-columns: 1.15fr 0.85fr; gap:56px; align-items:center;}
+  h1{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(38px, 6vw, 68px);
+    line-height:1.03; letter-spacing:-0.01em;
+    text-transform:uppercase;
+  }
+  h1 .line{display:block; overflow:hidden;}
+  h1 .line span{display:inline-block; transform:translateY(100%);}
+  h1 em{font-style:normal; color:var(--amber);}
+  .hero-sub{margin-top:22px; font-size:18px; color:var(--muted); max-width:520px;}
+  .hero-actions{margin-top:34px; display:flex; gap:14px; flex-wrap:wrap;}
+  .btn-primary{
+    font-family:var(--display); text-transform:uppercase; letter-spacing:0.05em; font-size:15px;
+    background:var(--amber); color:var(--ink); padding:16px 26px; border-radius:2px;
+    text-decoration:none; font-weight:600; border:none; cursor:pointer; display:inline-block;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{box-shadow:0 8px 24px rgba(255,177,0,0.28);}
+  .btn-ghost{
+    font-family:var(--display); text-transform:uppercase; letter-spacing:0.05em; font-size:15px;
+    background:transparent; color:var(--paper); padding:16px 26px; border-radius:2px;
+    text-decoration:none; font-weight:600; border:1px solid var(--line); display:inline-block;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .btn-ghost:hover{border-color:var(--paper); background:rgba(255,255,255,0.03);}
+  .hero-stats{display:flex; gap:28px; margin-top:40px; flex-wrap:wrap;}
+  .hero-stats div{font-family:var(--mono); font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;}
+  .hero-stats strong{display:block; font-family:var(--display); font-size:22px; color:var(--paper); text-transform:none; letter-spacing:0;}
+
+  .timecode-panel{background:var(--ink-2); border:1px solid var(--line); border-radius:6px; padding:26px; position:relative;}
+  .timecode-panel::before{content:"VIEWFINDER"; position:absolute; top:14px; left:26px; font-family:var(--mono); font-size:11px; letter-spacing:0.15em; color:var(--muted);}
+  .frame{
+    margin-top:26px; aspect-ratio:9/13; border:1px solid var(--line); border-radius:4px;
+    background:linear-gradient(180deg, rgba(255,177,0,0.06), transparent 40%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 4px), #0B0C10;
+    position:relative; display:flex; align-items:flex-end; padding:16px;
+    transform-style:preserve-3d; transition:transform .1s ease-out;
+    will-change:transform;
+  }
+  .frame .corner{position:absolute; width:16px; height:16px; border-color:var(--amber); opacity:0.8;}
+  .frame .tl{top:10px; left:10px; border-top:2px solid; border-left:2px solid;}
+  .frame .tr{top:10px; right:10px; border-top:2px solid; border-right:2px solid;}
+  .frame .bl{bottom:10px; left:10px; border-bottom:2px solid; border-left:2px solid;}
+  .frame .br{bottom:10px; right:10px; border-bottom:2px solid; border-right:2px solid;}
+  .frame-label{font-family:var(--mono); font-size:12px; color:var(--amber);}
+  .frame-time{font-family:var(--mono); font-size:12px; color:var(--muted); margin-top:4px;}
+  .scan-line{position:absolute; left:0; right:0; height:40%; background:linear-gradient(180deg, transparent, rgba(255,177,0,0.06), transparent); animation:scan 3.2s linear infinite;}
+  @keyframes scan{0%{top:-40%;} 100%{top:100%;}}
+
+  /* ---------- Section shell ---------- */
+  section{padding:76px 24px;}
+  .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:var(--amber); margin-bottom:14px;}
+  h2{font-family:var(--display); font-size:clamp(28px,4vw,42px); text-transform:uppercase; letter-spacing:-0.01em; margin-bottom:16px;}
+  .section-sub{color:var(--muted); max-width:600px; font-size:16px; margin-bottom:48px;}
+
+  /* ---------- Services ---------- */
+  .services-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line);}
+  .service-card{background:var(--ink); padding:34px 28px; transition:background .3s ease, transform .3s ease;}
+  .service-card:hover{background:var(--ink-2); transform:translateY(-4px);}
+  .service-num{font-family:var(--mono); color:var(--amber-dim); font-size:13px; margin-bottom:18px; transition:color .3s ease;}
+  .service-card:hover .service-num{color:var(--amber);}
+  .service-card h3{font-family:var(--display); font-size:21px; text-transform:uppercase; margin-bottom:10px;}
+  .service-card p{color:var(--muted); font-size:14.5px;}
+
+  /* ---------- How it works ---------- */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:0; border-top:1px solid var(--line);}
+  .step{padding:28px 22px 28px 0; border-bottom:1px solid var(--line); position:relative;}
+  .step:not(:last-child){border-right:1px solid var(--line); padding-right:22px;}
+  .step-time{font-family:var(--mono); color:var(--teal); font-size:13px; margin-bottom:12px;}
+  .step h4{font-family:var(--display); font-size:17px; text-transform:uppercase; margin-bottom:8px;}
+  .step p{color:var(--muted); font-size:14px;}
+
+  /* ---------- Pricing ---------- */
+  .pricing-note{font-family:var(--mono); font-size:13px; color:var(--muted); border:1px dashed var(--line); padding:14px 18px; border-radius:4px; margin-bottom:40px; max-width:640px;}
+  .pricing-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .price-card{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:6px; padding:32px 26px;
+    display:flex; flex-direction:column; transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease;
+    transform-style:preserve-3d; will-change:transform;
+  }
+  .price-card:hover{border-color:rgba(255,177,0,0.4); box-shadow:0 16px 40px rgba(0,0,0,0.35);}
+  .price-card.featured{border-color:var(--amber); box-shadow:0 0 0 1px var(--amber);}
+  .price-tag{font-family:var(--mono); font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--amber); margin-bottom:10px;}
+  .price-card h3{font-family:var(--display); font-size:22px; text-transform:uppercase; margin-bottom:6px;}
+  .price-amount{font-family:var(--shout); font-size:34px; margin:14px 0 4px;}
+  .price-amount span{font-family:var(--body); font-size:13px; color:var(--muted); font-weight:400;}
+  .price-card ul{list-style:none; margin:20px 0 26px; flex:1;}
+  .price-card li{font-size:14px; color:var(--muted); padding:9px 0; border-top:1px solid var(--line); display:flex; gap:10px; align-items:flex-start;}
+  .price-card li:first-child{border-top:none;}
+  .price-card li::before{content:"›"; color:var(--amber); font-weight:700;}
+  .price-card .btn-ghost, .price-card .btn-primary{text-align:center; width:100%;}
+
+  /* ---------- Booking ---------- */
+  .booking{background:var(--ink-2); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .booking-grid{display:grid; grid-template-columns:0.8fr 1.2fr; gap:56px; align-items:start;}
+  .booking-info h2{margin-bottom:20px;}
+  .booking-info p{color:var(--muted); margin-bottom:24px;}
+  .info-row{display:flex; gap:14px; align-items:flex-start; margin-bottom:18px;}
+  .info-row .k{font-family:var(--mono); color:var(--amber); font-size:12px; text-transform:uppercase; letter-spacing:0.08em; min-width:90px;}
+  .info-row .v{font-size:14.5px; color:var(--paper);}
+  form{display:grid; gap:16px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  label{font-family:var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:7px;}
+  input, select, textarea{
+    width:100%; background:var(--ink); border:1px solid var(--line); color:var(--paper);
+    padding:13px 14px; border-radius:4px; font-family:var(--body); font-size:14.5px;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus, select:focus, textarea:focus{outline:none; border-color:var(--amber); box-shadow:0 0 0 3px rgba(255,177,0,0.12);}
+  textarea{resize:vertical; min-height:90px;}
+  .submit-row{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-top:6px;}
+  .form-note{font-size:12.5px; color:var(--muted); font-family:var(--mono);}
+  .field-error{font-size:12px; color:var(--rec); font-family:var(--mono); margin-top:6px; display:none;}
+
+  /* ---------- Footer ---------- */
+  footer{padding:50px 24px 40px;}
+  .footer-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;}
+  .footer-logo{font-family:var(--shout); font-size:20px;}
+  .footer-logo span{color:var(--amber);}
+  .footer-links{display:flex; gap:22px; font-family:var(--mono); font-size:12.5px; text-transform:uppercase; letter-spacing:0.06em;}
+  .footer-links a{text-decoration:none; color:var(--muted);}
+  .footer-bottom{margin-top:30px; padding-top:20px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+
+  @media (max-width:900px){
+    .hero-grid{grid-template-columns:1fr;}
+    .timecode-panel{order:-1;}
+    .services-grid{grid-template-columns:1fr;}
+    .steps{grid-template-columns:1fr 1fr;}
+    .step:nth-child(2){border-right:none;}
+    .pricing-grid{grid-template-columns:1fr;}
+    .booking-grid{grid-template-columns:1fr;}
+    .nav-links{display:none;}
+  }
+  @media (max-width:560px){
+    .field-row{grid-template-columns:1fr;}
+    .steps{grid-template-columns:1fr;}
+    .step{border-right:none !important;}
+    section{padding:56px 18px;}
+    .hero{padding:64px 18px 30px;}
+    .footer-bottom{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<header>
+  <nav>
+    <div class="logo">HARSHA<span>VISUAL</span></div>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#book">Book</a>
+    </div>
+    <a class="nav-cta magnetic" href="#book">Book a Shoot</a>
+  </nav>
+</header>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>POLITICAL CONTENT REELS &nbsp;•&nbsp; EVENT SHOOTS &nbsp;•&nbsp; 10 MINUTE DELIVERY &nbsp;•&nbsp; PHONE · TAB · LAPTOP &nbsp;•&nbsp; BOOK NOW &nbsp;•</span>
+    <span>POLITICAL CONTENT REELS &nbsp;•&nbsp; EVENT SHOOTS &nbsp;•&nbsp; 10 MINUTE DELIVERY &nbsp;•&nbsp; PHONE · TAB · LAPTOP &nbsp;•&nbsp; BOOK NOW &nbsp;•</span>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="rec-badge">
+        <span class="rec-dot"></span>
+        REC · DELIVERY IN <span id="countdown">10:00</span>
+      </div>
+      <h1>
+        <span class="line"><span>Shot on site.</span></span>
+        <span class="line"><span>Cut in minutes.</span></span>
+        <span class="line"><span><em>Live on your phone.</em></span></span>
+      </h1>
+      <p class="hero-sub" data-reveal>HarshaVisual sends a crew to your rally, event, or shoot and hands you an edited reel before the crowd has even left — ready for WhatsApp, Instagram, and every device in between.</p>
+      <div class="hero-actions" data-reveal>
+        <a href="#book" class="btn-primary magnetic">Book a Shoot</a>
+        <a href="#pricing" class="btn-ghost magnetic">See Pricing</a>
+      </div>
+      <div class="hero-stats" data-reveal>
+        <div><strong>10 min</strong>Turnaround after shoot</div>
+        <div><strong>Phone / Tab / Laptop</strong>Delivered how you need it</div>
+        <div><strong>Political · Events</strong>Content we specialize in</div>
+      </div>
+    </div>
+    <div class="timecode-panel" data-reveal id="tiltPanel">
+      <div class="frame" id="tiltFrame">
+        <div class="scan-line"></div>
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div>
+          <div class="frame-label">HARSHAVISUAL_REEL_01.mp4</div>
+          <div class="frame-time">00:00:09:47 · 1080×1920 · Rendering</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sprocket"></div>
+
+<section id="services">
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>What we shoot</div>
+    <h2 data-reveal>Built for moments that don't wait</h2>
+    <p class="section-sub" data-reveal>Every package is shot, edited, and delivered on-site — no waiting days for a link to a shared drive.</p>
+  </div>
+  <div class="wrap">
+    <div class="services-grid">
+      <div class="service-card" data-reveal>
+        <div class="service-num">01 / Political</div>
+        <h3>Political Content Reels</h3>
+        <p>Rally coverage, speeches, door-to-door campaign moments and public statements — cut into shareable vertical reels while the event is still happening, so your message goes out on the same news cycle.</p>
+      </div>
+      <div class="service-card" data-reveal>
+        <div class="service-num">02 / Events</div>
+        <h3>Event Shoots</h3>
+        <p>Inaugurations, felicitations, conferences, product launches, and celebrations. One crew, full coverage, and a ready-to-post reel before your guests head home.</p>
+      </div>
+      <div class="service-card" data-reveal>
+        <div class="service-num">03 / Personal</div>
+        <h3>Personal & Brand Reels</h3>
+        <p>Birthdays, announcements, personal branding content, and one-off shoots for individuals or small businesses who want a professional reel without a professional wait.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sprocket"></div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>How it works</div>
+    <h2 data-reveal>From booking to your phone</h2>
+    <p class="section-sub" data-reveal>Four steps, one crew, zero back-and-forth.</p>
+    <div class="steps">
+      <div class="step" data-reveal><div class="step-time">STEP 1</div><h4>Book</h4><p>Fill the form below with your date, location, and the kind of shoot you need.</p></div>
+      <div class="step" data-reveal><div class="step-time">STEP 2</div><h4>Confirm</h4><p>We confirm crew, timing, and pricing with you over WhatsApp or call.</p></div>
+      <div class="step" data-reveal><div class="step-time">STEP 3</div><h4>Shoot</h4><p>Our crew arrives on time and shoots your event, speech, or moment.</p></div>
+      <div class="step" data-reveal><div class="step-time">10:00</div><h4>Deliver</h4><p>Your edited reel lands on your phone, tab, or laptop — ready to post.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="sprocket"></div>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="eyebrow" data-reveal>Pricing</div>
+    <h2 data-reveal>Simple packages, no hidden edits</h2>
+    <div class="pricing-note" data-reveal>Starter pricing shown below — edit these numbers to match your real costs before launch. Nothing here is final until you and your brother lock it in.</div>
+    <div class="pricing-grid">
+      <div class="price-card" data-reveal data-tilt>
+        <div class="price-tag">Quick Reel</div>
+        <h3>Solo Shoot</h3>
+        <div class="price-amount">₹1,499 <span>/ shoot</span></div>
+        <ul>
+          <li>1 shooter, up to 30 min on-site</li>
+          <li>1 edited reel (up to 60 sec)</li>
+          <li>Delivered in 10 minutes</li>
+          <li>Formatted for phone & tab</li>
+        </ul>
+        <a href="#book" class="btn-ghost magnetic">Choose Quick Reel</a>
+      </div>
+      <div class="price-card featured" data-reveal data-tilt>
+        <div class="price-tag">Most booked</div>
+        <h3>Event Shoot</h3>
+        <div class="price-amount">₹3,999 <span>/ event</span></div>
+        <ul>
+          <li>2-person crew, up to 2 hours</li>
+          <li>Up to 3 edited reels</li>
+          <li>Delivered in 10 minutes per reel</li>
+          <li>Formatted for phone, tab & laptop</li>
+          <li>Raw footage shared same day</li>
+        </ul>
+        <a href="#book" class="btn-primary magnetic">Choose Event Shoot</a>
+      </div>
+      <div class="price-card" data-reveal data-tilt>
+        <div class="price-tag">Political</div>
+        <h3>Campaign Package</h3>
+        <div class="price-amount">Custom <span>quote</span></div>
+        <ul>
+          <li>Multi-location or full-day coverage</li>
+          <li>Dedicated crew and editor on-call</li>
+          <li>Priority 10-minute turnaround</li>
+          <li>Volume pricing for repeat events</li>
+        </ul>
+        <a href="#book" class="btn-ghost magnetic">Request a Quote</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sprocket"></div>
+
+<section class="booking" id="book">
+  <div class="wrap booking-grid">
+    <div class="booking-info" data-reveal>
+      <div class="eyebrow">Book now</div>
+      <h2>Tell us about your shoot</h2>
+      <p>Send the details below over WhatsApp in one tap, or fill the form and we'll get back to you to confirm crew, timing, and price.</p>
+      <div class="info-row"><div class="k">Response</div><div class="v">Usually within 30 minutes</div></div>
+      <div class="info-row"><div class="k">Coverage</div><div class="v">On-site anywhere we can send a crew</div></div>
+      <div class="info-row"><div class="k">Contact</div><div class="v">WhatsApp preferred for fastest confirmation</div></div>
+    </div>
+    <form id="bookingForm" data-reveal novalidate>
+      <div class="field-row">
+        <div>
+          <label for="name">Your name</label>
+          <input type="text" id="name" placeholder="Full name">
+          <div class="field-error" id="err-name">Enter your name first.</div>
+        </div>
+        <div>
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" placeholder="10-digit mobile number">
+          <div class="field-error" id="err-phone">Enter a valid 10-digit number.</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <label for="shootType">Type of shoot</label>
+          <select id="shootType">
+            <option>Political content reel</option>
+            <option>Event shoot</option>
+            <option>Personal / brand reel</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div>
+          <label for="date">Date & time</label>
+          <input type="text" id="date" placeholder="e.g. 20 Aug, 5:00 PM">
+        </div>
+      </div>
+      <div>
+        <label for="location">Shoot location</label>
+        <input type="text" id="location" placeholder="Venue / area / city">
+      </div>
+      <div>
+        <label for="details">Anything we should know</label>
+        <textarea id="details" placeholder="Expected crowd size, duration, number of reels needed, etc."></textarea>
+      </div>
+      <div class="submit-row">
+        <button type="submit" class="btn-primary magnetic" style="cursor:pointer;">Send via WhatsApp</button>
+        <span class="form-note">Opens WhatsApp with your details pre-filled — nothing is sent without you tapping send there.</span>
+      </div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-logo">HARSHA<span>VISUAL</span></div>
+      <div class="footer-links">
+        <a href="#services">Services</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#book">Book</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> HarshaVisual. Reels shot, cut, and delivered on-site.</span>
+      <span>Replace this line with your real WhatsApp number, Instagram handle, and city.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* Countdown flourish */
+(function(){
+  var el = document.getElementById('countdown');
+  var total = 600, t = total;
+  setInterval(function(){
+    t = t <= 0 ? total : t - 1;
+    var m = Math.floor(t/60), s = t%60;
+    el.textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  }, 1000);
+})();
+
+/* Custom cursor */
+(function(){
+  var dot = document.getElementById('cursorDot');
+  var ring = document.getElementById('cursorRing');
+  if(!dot) return;
+  var rx=0, ry=0, tx=0, ty=0;
+  window.addEventListener('mousemove', function(e){
+    dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px';
+    tx = e.clientX; ty = e.clientY;
+  });
+  (function loop(){
+    rx += (tx-rx)*0.18; ry += (ty-ry)*0.18;
+    ring.style.left = rx+'px'; ring.style.top = ry+'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('a, button, input, textarea, select').forEach(function(el){
+    el.addEventListener('mouseenter', function(){ ring.style.width='50px'; ring.style.height='50px'; ring.style.opacity='0.6'; });
+    el.addEventListener('mouseleave', function(){ ring.style.width='34px'; ring.style.height='34px'; ring.style.opacity='1'; });
+  });
+})();
+
+/* Scroll progress bar */
+window.addEventListener('scroll', function(){
+  var h = document.documentElement;
+  var pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  document.getElementById('progressBar').style.width = pct+'%';
+});
+
+/* Magnetic buttons */
+document.querySelectorAll('.magnetic').forEach(function(btn){
+  btn.addEventListener('mousemove', function(e){
+    var r = btn.getBoundingClientRect();
+    var x = e.clientX - r.left - r.width/2;
+    var y = e.clientY - r.top - r.height/2;
+    btn.style.transform = 'translate('+x*0.25+'px,'+y*0.35+'px)';
+  });
+  btn.addEventListener('mouseleave', function(){ btn.style.transform='translate(0,0)'; });
+});
+
+/* 3D tilt on viewfinder + pricing cards */
+function addTilt(el, strength){
+  el.addEventListener('mousemove', function(e){
+    var r = el.getBoundingClientRect();
+    var x = (e.clientX - r.left)/r.width - 0.5;
+    var y = (e.clientY - r.top)/r.height - 0.5;
+    el.style.transform = 'perspective(600px) rotateY('+(x*strength)+'deg) rotateX('+(-y*strength)+'deg)';
+  });
+  el.addEventListener('mouseleave', function(){ el.style.transform='perspective(600px) rotateY(0) rotateX(0)'; });
+}
+var tf = document.getElementById('tiltFrame');
+if(tf) addTilt(tf, 10);
+document.querySelectorAll('[data-tilt]').forEach(function(el){ addTilt(el, 4); });
+
+/* GSAP scroll reveals */
+gsap.registerPlugin(ScrollTrigger);
+
+gsap.utils.toArray('h1 .line span').forEach(function(el, i){
+  gsap.to(el, { y:'0%', duration:0.9, delay:0.15*i, ease:'power4.out' });
+});
+
+gsap.utils.toArray('[data-reveal]').forEach(function(el){
+  gsap.to(el, {
+    opacity:1, y:0, duration:0.8, ease:'power3.out',
+    scrollTrigger:{ trigger: el, start:'top 88%' }
+  });
+});
+
+gsap.utils.toArray('.service-card').forEach(function(el, i){
+  gsap.to(el, { opacity:1, y:0, duration:0.7, delay:i*0.1, ease:'power3.out',
+    scrollTrigger:{ trigger: el, start:'top 88%' } });
+});
+
+gsap.utils.toArray('.step').forEach(function(el, i){
+  gsap.to(el, { opacity:1, y:0, duration:0.6, delay:i*0.08, ease:'power3.out',
+    scrollTrigger:{ trigger: el, start:'top 92%' } });
+});
+
+gsap.utils.toArray('.price-card').forEach(function(el, i){
+  gsap.to(el, { opacity:1, y:0, duration:0.7, delay:i*0.12, ease:'power3.out',
+    scrollTrigger:{ trigger: el, start:'top 88%' } });
+});
+
+/* Header shrink on scroll */
+ScrollTrigger.create({
+  start: 50, end: 99999,
+  onUpdate: function(self){
+    document.querySelector('header nav').style.padding = self.direction === 1 ? '10px 24px' : '16px 24px';
+  }
+});
+
+/* Booking form validation + WhatsApp handoff */
+var WHATSAPP_NUMBER = "91XXXXXXXXXX"; // TODO: replace with real WhatsApp number, country code + number, no + or spaces
+
+document.getElementById('bookingForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var name = document.getElementById('name');
+  var phone = document.getElementById('phone');
+  var okName = name.value.trim().length > 1;
+  var okPhone = /^\d{10}$/.test(phone.value.trim());
+
+  document.getElementById('err-name').style.display = okName ? 'none' : 'block';
+  document.getElementById('err-phone').style.display = okPhone ? 'none' : 'block';
+  if(!okName || !okPhone) return;
+
+  var shootType = document.getElementById('shootType').value;
+  var date = document.getElementById('date').value;
+  var location = document.getElementById('location').value;
+  var details = document.getElementById('details').value;
+
+  var message = "New booking request via HarshaVisual website:\n" +
+    "Name: " + name.value + "\n" +
+    "Phone: " + phone.value + "\n" +
+    "Shoot type: " + shootType + "\n" +
+    "Date & time: " + date + "\n" +
+    "Location: " + location + "\n" +
+    "Details: " + details;
+
+  var url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(message);
+  window.open(url, "_blank");
+});
+['name','phone'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', function(){
+    document.getElementById('err-'+id).style.display = 'none';
+  });
+});
+
+/* PWA service worker registration */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('service-worker.js').catch(function(){});
+  });
+}
+</script>
+
+</body>
+</html>
